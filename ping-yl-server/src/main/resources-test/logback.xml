@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+		<appender name="GELFLOG" class="me.moocar.logback.net.SocketEncoderAppender">
+		<!-- 配置日志服务器的ip -->
+        <remoteHost>192.168.99.210</remoteHost>
+        <port>12201</port>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="me.moocar.logbackgelf.GelfLayout">
+                <shortMessageLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%rEx%m</pattern>
+                </shortMessageLayout>
+                <useLoggerName>true</useLoggerName>
+                <useThreadName>true</useThreadName>
+                <useMarker>true</useMarker>
+                <!-- 配置模块名称 -->
+                <host>store</host>
+                <staticAdditionalField>_facility:GELF</staticAdditionalField>
+            </layout>
+        </encoder>
+    </appender>
+    <appender name="errorlog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${catalina.base}/logs/store/store-error.log</file>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${catalina.base}/logs/store/store-error.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%date{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+
+	<logger name="com.jq" level="ERROR" additivity="false">
+		<appender-ref ref="errorlog" />
+	</logger>
+	
+	<logger name="com.jq" level="INFO" additivity="false">
+		<appender-ref ref="GELFLOG" />
+	</logger>
+	<root level="WARN">
+		<appender-ref ref="GELFLOG" />
+	</root>
+</configuration>

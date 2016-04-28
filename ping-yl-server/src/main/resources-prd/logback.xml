@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <property name="LOG_NAME" value="jq-cmp-store-server" />
+  <appender name="GELFLOG" class="me.moocar.logback.net.SocketEncoderAppender">
+    <!-- 配置日志服务器的ip -->
+        <remoteHost>graylog.dccj.in</remoteHost>
+        <port>12201</port>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="me.moocar.logbackgelf.GelfLayout">
+                <shortMessageLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%rEx%m</pattern>
+                </shortMessageLayout>
+                <useLoggerName>true</useLoggerName>
+                <useThreadName>true</useThreadName>
+                <useMarker>true</useMarker>
+                <!-- 配置模块名称 -->
+                <host>${LOG_NAME}</host>
+                <staticAdditionalField>_facility:GELF</staticAdditionalField>
+            </layout>
+        </encoder>
+    </appender>
+
+   <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <Encoding>UTF-8</Encoding>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${catalina.base}/logs/${LOG_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </layout>
+   </appender>
+
+  <logger name="com.jq" level="DEBUG">
+    <appender-ref ref="GELFLOG" />
+  </logger>
+  <root level="INFO">
+    <appender-ref ref="GELFLOG" />
+  </root>
+</configuration>
